@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model ATM {
+  id_atm      String        @id @db.Char(20)
+  direccion   String        @db.VarChar(50)
+  operando    Boolean       @default(true)
+  Transaccion Transaccion[]
+}
+
+model Cliente {
+  id_usuario String   @id @db.Char(10)
+  nombre     String   @db.VarChar(50)
+  apellido   String   @db.VarChar(50)
+  direccion  String   @db.VarChar(50)
+  Cuenta     Cuenta[]
+}
+
+model Cuenta {
+  id_cuenta    String        @id @db.Char(10)
+  fondos       Float         @db.Float
+  id_usuario   String        @db.Char(10)
+  pago_mensual Float?        @db.Float
+  Cliente      Cliente       @relation(fields: [id_usuario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "id_usuario")
+  Tarjeta      Tarjeta[]
+  Transaccion  Transaccion[]
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model Tarjeta {
+  num_tarjeta       String   @id @db.Char(16)
+  fecha_vencimiento DateTime @db.Date
+  id_cuenta         String   @db.Char(10)
+  NIP               String   @db.Char(4)
+  tipo_tarjeta      String   @db.VarChar(10)
+  bloqueada         Boolean  @default(false)
+  Cuenta            Cuenta   @relation(fields: [id_cuenta], references: [id_cuenta], onDelete: NoAction, onUpdate: NoAction, map: "id_cuenta")
+
+  @@index([id_cuenta], map: "id_cuenta")
+}
+
+model Transaccion {
+  id_transaccion   String   @id @db.Char(20)
+  tipo_transaccion String   @db.VarChar(20)
+  id_atm           String   @db.Char(20)
+  id_cuenta        String   @db.Char(10)
+  fecha            DateTime @db.DateTime(0)
+  estado           String   @db.VarChar(20)
+  cambio_fondos    Float    @db.Float
+  ATM              ATM      @relation(fields: [id_atm], references: [id_atm], onDelete: NoAction, onUpdate: NoAction, map: "id_atm")
+  Cuenta           Cuenta   @relation(fields: [id_cuenta], references: [id_cuenta], onDelete: NoAction, onUpdate: NoAction, map: "id_cuenta_transaccion")
+
+  @@index([id_atm], map: "id_atm")
+  @@index([id_cuenta], map: "id_cuenta_transaccion")
+}
