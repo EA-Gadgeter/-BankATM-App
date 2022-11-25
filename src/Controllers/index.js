@@ -54,6 +54,7 @@ const getUserData = async (req, res) => {
         const {body} = req;
         const {cardNumber: cardNumberReq, idAccount: idAccountReq} = body;
 
+        // Getting card end date from the card used for login
         const findCardDate = await prisma.Tarjeta.findUnique({
             where: {
                 num_tarjeta: cardNumberReq,
@@ -63,6 +64,8 @@ const getUserData = async (req, res) => {
             },
         });
 
+        // Getting user info from accountID, we can grab data from relations
+        // using the follwing prisma query Sintax
         const findUserInfo = await prisma.Cuenta.findUnique({
             where: {
                 id_cuenta: idAccountReq,
@@ -77,15 +80,20 @@ const getUserData = async (req, res) => {
                 },
             },
         });
-
+        
+        // Validating if both queries throw something
         if(findUserInfo && findCardDate) {
+            // Sending info to frontend
+            let cardDateEnd = new Date(findCardDate.fecha_vencimiento);
+            cardDateEnd = `${cardDateEnd.getMonth()}/${cardDateEnd.getFullYear()}`;
             res.send({
                 fonds: findUserInfo.fondos,
                 name: `${findUserInfo.Cliente.nombre} ${findUserInfo.Cliente.apellido}`,
-                cardDateEnd: findCardDate.fecha_vencimiento,
+                cardDateEnd,
                 dataFounded: true,
             })
         } else {
+            // Data not founded
             res.status(404).send({
                 dataFounded: false,
             })
