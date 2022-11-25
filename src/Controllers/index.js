@@ -85,7 +85,7 @@ const getUserData = async (req, res) => {
         if(findUserInfo && findCardDate) {
             // Sending info to frontend
             let cardDateEnd = new Date(findCardDate.fecha_vencimiento);
-            cardDateEnd = `${cardDateEnd.getMonth()}/${cardDateEnd.getFullYear()}`;
+            cardDateEnd = `${cardDateEnd.getFullYear()}`;
             res.send({
                 fonds: findUserInfo.fondos,
                 name: `${findUserInfo.Cliente.nombre} ${findUserInfo.Cliente.apellido}`,
@@ -105,8 +105,66 @@ const getUserData = async (req, res) => {
     
 };
 
+const withdrawChange = async (req, res) => {
+    try {
+        const {body} = req;
+        const {restFonds, idAccount: idAccountReq} = body;
+
+        const findUserFonds = await prisma.Cuenta.findUnique({
+            where: {
+                id_cuenta: idAccountReq,
+            },
+            select: {
+                fondos: true,
+            },
+        });
+
+        if (findUserFonds) {
+            
+            if(restFonds < findUserFonds.fondos) {
+
+                const newFonds = findUserFonds.fondos - Number(restFonds);
+                
+                const fondsUserUpdate = await prisma.Cuenta.update({
+                    where: {
+                        id_cuenta: idAccountReq,
+                    },
+                    data: {
+                        fondos: newFonds,
+                    },
+                });
+
+                if (fondsUserUpdate) {
+                    res.send({
+                        withdrawSuccesful: true,
+                        validMoney: true,
+                    })
+                } else {
+                    res.send({
+                        withdrawSuccesful: false,
+                        validMoney: true,
+                    })
+                }
+            } else {
+                res.send({
+                    withdrawSuccesful: false,
+                    validMoney: false,
+                })
+            }
+        } else {
+            // Data not founded
+            res.status(404).send({
+                dataFounded: false,
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 
 module.exports = {
     loginUser,
     getUserData,
+    withdrawChange,
 }
