@@ -162,9 +162,122 @@ const withdrawChange = async (req, res) => {
     }
 };
 
+const cardExists = async (req, res) => {
+    try {
+        const {body} = req;
+        const {cardNumber: cardNumberReq} = body;
+
+        // Getting card end date from the card used for login
+        const findCard = await prisma.Tarjeta.findUnique({
+            where: {
+                num_tarjeta: cardNumberReq,
+            },
+            select: {
+                id_cuenta: true,
+            },
+        });
+
+        if (findCard) {
+
+            res.send({
+                idAccountToAdd: findCard.id_cuenta,
+                dataFounded: true,
+            })
+
+        } else {
+            res.send({
+                dataFounded: false,
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}; 
+
+const transferFonds = async (req, res) => {
+    try {
+        const {body} = req;
+        const {transferFonds, idAccount: idAccountReq, idAccountToAdd} = body;
+
+        const findUserFondsFrom = await prisma.Cuenta.findUnique({
+            where: {
+                id_cuenta: idAccountReq,
+            },
+            select: {
+                fondos: true,
+            },
+        });
+
+        const findUserFondsTo = await prisma.Cuenta.findUnique({
+            where: {
+                id_cuenta: idAccountToAdd,
+            },
+            select: {
+                fondos: true,
+            },
+        });
+
+        if (findUserFondsFrom && findUserFondsTo) {
+
+            if(transferFonds < findUserFondsFrom.fondos) {
+
+                const newFondsFrom = findUserFondsFrom.fondos - Number(transferFonds);
+                const newFondsTo = findUserFondsTo.fondos + Number(transferFonds);
+                
+                const fondsFromUpdate = await prisma.Cuenta.update({
+                    where: {
+                        id_cuenta: idAccountReq,
+                    },
+                    data: {
+                        fondos: newFondsFrom,
+                    },
+                });
+
+                const fondsToUpdate = await prisma.Cuenta.update({
+                    where: {
+                        id_cuenta: idAccountToAdd,
+                    },
+                    data: {
+                        fondos: newFondsTo,
+                    },
+                });
+
+                if (fondsFromUpdate && fondsToUpdate) {
+                    res.send({
+                        transferSuccesful: true,
+                        validMoney: true,
+                    })
+                } else {
+                    res.send({
+                        transferSuccesful: false,
+                        validMoney: true,
+                    })
+                }
+            } else {
+                res.send({
+                    transferSuccesful: false,
+                    validMoney: false,
+                })
+            }
+
+        } else {
+            // Data not founded
+            res.status(404).send({
+                dataFounded: false,
+            })
+        }
+
+
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 
 module.exports = {
     loginUser,
     getUserData,
     withdrawChange,
+    cardExists,
+    transferFonds,
 }
