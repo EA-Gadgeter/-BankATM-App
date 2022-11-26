@@ -55,8 +55,8 @@ Recibe el número de tarjeta y el NIP en el request:
 
 ```json
 {
-    cardNumber: String,
-    NIP: String,
+    "cardNumber": "String",
+    "NIP": "String",
 }
 ```
 
@@ -68,7 +68,7 @@ Devuelve en el response segun sea el caso:
 
 ```json
 {
-    shouldLogin: false,
+    "shouldLogin": false,
 }
 ```
 
@@ -76,9 +76,9 @@ Devuelve en el response segun sea el caso:
 
 ```json
 {
-    shouldLogin: true,
-    idCuenta: String,
-    tipoTarjeta: String,
+    "shouldLogin": true,
+    "idCuenta": "String",
+    "tipoTarjeta": "String",
 }
 ```
 
@@ -90,8 +90,8 @@ Recibe el número de tarjeta y el ID de la cuenta al que pertenece la tarjeta en
 
 ```json
 {
-    cardNumber: String,
-    idAccount: String,
+    "cardNumber": "String",
+    "idAccount": "String",
 }
 ```
 
@@ -101,8 +101,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    status: 204
-    dataFounded: false,
+    "status": 204
+    "dataFounded": false,
 }
 ```
 
@@ -110,10 +110,10 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    fonds: Number,
-    name: String,
-    cardDateEnd: String,
-    dataFounded: true,
+    "fonds": "Number",
+    "name": "String",
+    "cardDateEnd": "String",
+    "dataFounded": true,
 }
 ```
 
@@ -125,8 +125,8 @@ Recibe el ID de la cuenta y los fondos a retirar en el request:
 
 ```json
 {
-    idAccount: String,
-    restFonds: String,
+    "idAccount": "String",
+    "restFonds": "String",
 }
 ```
 
@@ -136,8 +136,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    status: 204
-    dataFounded: false,
+    "status": 204
+    "dataFounded": false,
 }
 ```
 
@@ -145,8 +145,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    withdrawSuccesful: false,
-    validMoney: false,
+    "withdrawSuccesful": false,
+    "validMoney": false,
 }
 ```
 
@@ -154,8 +154,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    withdrawSuccesful: false,
-    validMoney: true,
+    "withdrawSuccesful": false,
+    "validMoney": true,
 }
 ```
 
@@ -163,8 +163,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    withdrawSuccesful: true,
-    validMoney: true,
+    "withdrawSuccesful": true,
+    "validMoney": true,
 }
 ```
 
@@ -176,7 +176,7 @@ Recibe el número de tarjeta en el request:
 
 ```json
 {
-    cardNumber: String,
+    "cardNumber": "String",
 }
 ```
 
@@ -186,7 +186,7 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    dataFounded: false,
+    "dataFounded": false,
 }
 ```
 
@@ -194,8 +194,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    idAccountToAdd: String,
-    dataFounded: true,
+    "idAccountToAdd": "String",
+    "dataFounded": true,
 }
 ```
 
@@ -207,9 +207,9 @@ Recibe el ID de la cuenta que transfiere, el ID de la cuenta a transferir y los 
 
 ```json
 {
-    transferFonds: String, 
-    idAccount: String, 
-    idAccountToAdd: String,
+    "transferFonds": "String", 
+    "idAccount": "String", 
+    "idAccountToAdd": "String",
 }
 ```
 
@@ -219,8 +219,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    status: 204
-    dataFounded: false,
+    "status": 204
+    "dataFounded": false,
 }
 ```
 
@@ -228,8 +228,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    transferSuccesful: false,
-    validMoney: false,
+    "transferSuccesful": false,
+    "validMoney": false,
 }
 ```
 
@@ -237,8 +237,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    transferSuccesful: false,
-    validMoney: true,
+    "transferSuccesful": false,
+    "validMoney": true,
 }
 ```
 
@@ -246,8 +246,8 @@ Devuelve en el response según sea el caso:
 
 ```json
 {
-    transferSuccesful: true,
-    validMoney: true,
+    "transferSuccesful": true,
+    "validMoney": true,
 }
 ```
 
@@ -259,9 +259,9 @@ Recibe el ID de la cuenta, los fondos y el tipo de tarjeta en el request:
 
 ```json
 {
-    depPayFonds: String, 
-    idAccount: String, 
-    cardType: String,
+    "depPayFonds": "String", 
+    "idAccount": "String", 
+    "cardType": "String",
 }
 ```
 
@@ -269,8 +269,8 @@ Si el usuario no se encuentra, siempre devuelve en el response:
 
 ```json
 {
-    status: 204
-    dataFounded: false,
+    "status": 204
+    "dataFounded": false,
 }
 ```
 
@@ -280,7 +280,7 @@ Si la tarjeta es de débito, devuleve según sea el caso:
 
 ```json
 {
-    depPaySuccesful: false,
+    "depPaySuccesful": false,
 }
 ```
 
@@ -288,7 +288,7 @@ Si la tarjeta es de débito, devuleve según sea el caso:
 
 ```json
 {
-    depPaySuccesful: true,
+    "depPaySuccesful": true,
 }
 ```
 
@@ -298,8 +298,8 @@ Si la tarjeta es de crédito, devuleve según sea el caso:
 
 ```json
 {
-    depPaySuccesful: false,
-    validMoney: false,
+    "depPaySuccesful": false,
+    "validMoney": false,
 }
 ```
 
@@ -307,9 +307,9 @@ Si la tarjeta es de crédito, devuleve según sea el caso:
 
 ```json
 {
-    depPaySuccesful: true,
-    validMoney: true,
-    noToPayFonds: true,
+    "depPaySuccesful": true,
+    "validMoney": true,
+    "noToPayFonds": true,
 }
 ```
 
@@ -317,8 +317,8 @@ Si la tarjeta es de crédito, devuleve según sea el caso:
 
 ```json
 {
-    depPaySuccesful: false,
-    validMoney: true,
+    "depPaySuccesful": false,
+    "validMoney": true,
 }
 ```
 
@@ -326,9 +326,9 @@ Si la tarjeta es de crédito, devuleve según sea el caso:
 
 ```json
 {
-    depPaySuccesful: true,
-    validMoney: true,
-    newUserFonds: Number,
+    "depPaySuccesful": true,
+    "validMoney": true,
+    "newUserFonds": "Number",
 }
 ```
 
@@ -393,3 +393,7 @@ insert into Tarjeta values('1515515115155151', '2025-10-01', '8594501890', '1234
 insert into Tarjeta values('1313313113133131', '2028-08-01', '6596801812', '4321', 'debito', false);
 insert into Tarjeta values('1414414114144141', '2030-09-01', '6596801812', '4123', 'credito', false);
 ```
+
+## Esquema de la base de datos
+
+![Esquema Bank](https://drive.google.com/file/d/1NKPQzHcVT0kniS0PJTVz9Ntj7iXFbrqA/view?usp=sharing "Esquema Bank")
