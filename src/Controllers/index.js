@@ -94,7 +94,7 @@ const getUserData = async (req, res) => {
             })
         } else {
             // Data not founded
-            res.status(404).send({
+            res.status(204).send({
                 dataFounded: false,
             })
         }
@@ -121,7 +121,7 @@ const withdrawChange = async (req, res) => {
 
         if (findUserFonds) {
             
-            if(restFonds < findUserFonds.fondos) {
+            if(restFonds <= findUserFonds.fondos) {
 
                 const newFonds = findUserFonds.fondos - Number(restFonds);
                 
@@ -153,7 +153,7 @@ const withdrawChange = async (req, res) => {
             }
         } else {
             // Data not founded
-            res.status(404).send({
+            res.status(204).send({
                 dataFounded: false,
             })
         }
@@ -219,7 +219,7 @@ const transferFonds = async (req, res) => {
 
         if (findUserFondsFrom && findUserFondsTo) {
 
-            if(transferFonds < findUserFondsFrom.fondos) {
+            if(transferFonds <= findUserFondsFrom.fondos) {
 
                 const newFondsFrom = findUserFondsFrom.fondos - Number(transferFonds);
                 const newFondsTo = findUserFondsTo.fondos + Number(transferFonds);
@@ -262,11 +262,116 @@ const transferFonds = async (req, res) => {
 
         } else {
             // Data not founded
-            res.status(404).send({
+            res.status(204).send({
                 dataFounded: false,
             })
         }
 
+
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const depPayFonds = async (req, res) => {
+
+    try {
+        const {body} = req;
+        const {depPayFonds, idAccount: idAccountReq, cardType} = body;
+
+        const findUserDepPayData = await prisma.Cuenta.findUnique({
+            where: {
+                id_cuenta: idAccountReq,
+            },
+            select: {
+                fondos: true,
+                pago_mensual: true,
+            },
+        });
+
+        if (findUserDepPayData) {
+
+            if (cardType === "debito") {
+
+                const newDepPayFonds = findUserDepPayData.fondos + Number(depPayFonds);
+
+                const depPayFondsUpdate = await prisma.Cuenta.update({
+                    where: {
+                        id_cuenta: idAccountReq,
+                    },
+                    data: {
+                        fondos: newDepPayFonds,
+                    },
+                });
+
+                if (depPayFondsUpdate) {
+                    res.send({
+                        depPaySuccesful: true,
+                    })
+                } else {
+                    res.send({
+                        depPaySuccesful: false,
+                    })
+                }
+
+            } else if (cardType === "credito") {
+
+                if (depPayFonds <= findUserDepPayData.fondos) {
+
+                    if(findUserDepPayData.pago_mensual > 0) {
+                        let newUserFonds;
+                        let newToPayFonds;
+
+                        if (depPayFonds >= findUserDepPayData.pago_mensual) {
+                            newToPayFonds = 0;
+                            newUserFonds = findUserDepPayData.fondos - findUserDepPayData.pago_mensual;
+                        } else {
+                            newToPayFonds = findUserDepPayData.pago_mensual - Number(depPayFonds);
+                            newUserFonds  = findUserDepPayData.fondos - Number(depPayFonds);
+                        }
+                        
+                        const depPayFondsUpdate = await prisma.Cuenta.update({
+                            where: {
+                                id_cuenta: idAccountReq,
+                            },
+                            data: {
+                                fondos: newUserFonds,
+                                pago_mensual: newToPayFonds,
+                            },
+                        });
+
+                        if (depPayFondsUpdate) {
+                            res.send({
+                                depPaySuccesful: true,
+                                validMoney: true,
+                                newUserFonds,
+                            })
+                        } else {
+                            res.send({
+                                depPaySuccesful: false,
+                                validMoney: true,
+                            })
+                        }
+                    } else {
+                        res.send({
+                            depPaySuccesful: true,
+                            validMoney: true,
+                            noToPayFonds: true,
+                        })
+                    } 
+                } else {
+                    res.send({
+                        depPaySuccesful: false,
+                        validMoney: false,
+                    })
+                }
+            }   
+        } else {
+            // Data not founded
+            res.status(204).send({
+                dataFounded: false,
+            })
+        }
 
     } catch (error) {
         console.log(error);
@@ -280,4 +385,5 @@ module.exports = {
     withdrawChange,
     cardExists,
     transferFonds,
+    depPayFonds,
 }
