@@ -31,19 +31,57 @@ const loginUser = async (req, res) => {
                 // id and type of the card, necesary for
                 // correct operation of ATM
                 if (findCardUser.NIP === NIPReq) {
-                    res.send({
-                        shouldLogin: true,
-                        idCuenta: findCardUser.id_cuenta,
-                        tipoTarjeta: findCardUser.tipo_tarjeta
-                    });
+
+                    if (findCardUser.bloqueada) {
+                        res.send({
+                            shouldLogin: false,
+                            cardBlocked: true,
+                        });
+                    } else {
+                        res.send({
+                            shouldLogin: true,
+                            idCuenta: findCardUser.id_cuenta,
+                            tipoTarjeta: findCardUser.tipo_tarjeta
+                        });
+                    }
                 } else {
                     // If not, it is send that either cardNumber or NIP is wrong
                     res.send({
                         shouldLogin: false,
+                        badInfo: true,
                     }); 
                 }
             }
         }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const blockCard = async (req, res) => {
+    try {
+        const {body} = req;
+        const {cardNumber: cardToBlock} = body;
+
+        const blockUserCard = await prisma.Tarjeta.update({
+            where: {
+                num_tarjeta: cardToBlock,
+            },
+            data: {
+                bloqueada: true,
+            },
+        });
+
+        if(blockUserCard) {
+            res.send({
+                cardBlocked: true,
+            });
+        } else {
+            res.send({
+                cardBlocked: false,
+            });
+        }
+
     } catch (error) {
         console.log(error);
     }
@@ -381,6 +419,7 @@ const depPayFonds = async (req, res) => {
 
 module.exports = {
     loginUser,
+    blockCard,
     getUserData,
     withdrawChange,
     cardExists,
