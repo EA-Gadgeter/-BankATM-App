@@ -7,6 +7,7 @@ const {
   transferFonds,
   depPayFonds,
   blockCard,
+  newTransaction
 } = require("../Controllers");
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router.put("/withdraw", withdrawChange);
 router.post("/transfer", cardExists);
 router.put("/transfer", transferFonds);
 router.put("/dep-fonds", depPayFonds);
+router.post("/transaction", newTransaction);
 
 module.exports = {
   router

@@ -19,6 +19,13 @@ const loginUser = async (req, res) => {
                     num_tarjeta: cardNumberReq,
                 },
             });
+
+            // Choosing randomly an ATM from db.
+            const atmList = await prisma.ATM.findMany();
+            let randomATM;
+            if (atmList.length > 0)
+                randomATM = atmList[Math.floor(Math.random() * atmList.length)];
+        
             
             // If not found, it is send that either cardNumber or NIP is wrong
             if (!findCardUser) {
@@ -32,6 +39,7 @@ const loginUser = async (req, res) => {
                 // correct operation of ATM
                 if (findCardUser.NIP === NIPReq) {
 
+                    // If card is blocked, we notify this to frontend
                     if (findCardUser.bloqueada) {
                         res.send({
                             shouldLogin: false,
@@ -41,7 +49,8 @@ const loginUser = async (req, res) => {
                         res.send({
                             shouldLogin: true,
                             idCuenta: findCardUser.id_cuenta,
-                            tipoTarjeta: findCardUser.tipo_tarjeta
+                            tipoTarjeta: findCardUser.tipo_tarjeta,
+                            randomATM: randomATM.id_atm,
                         });
                     }
                 } else {
@@ -416,6 +425,46 @@ const depPayFonds = async (req, res) => {
     }
 };
 
+const newTransaction = async (req, res) => {
+    try {
+        const {body} = req;
+        const 
+        {
+            idTransaction,
+            transactionType, 
+            idATM, 
+            idAccount, 
+            datetime, 
+            fondsChange
+        } = body;
+
+        const newTransaction = await prisma.Transaccion.create({
+            data: {
+                id_transaccion: idTransaction,
+                tipo_transaccion: transactionType,
+                id_atm: idATM,
+                id_cuenta: idAccount,
+                fecha: new Date(datetime),
+                estado: "Completa",
+                cambio_fondos: fondsChange,
+            },
+        });
+
+        if (newTransaction) {
+            res.send({
+                dataInserted: true,
+            });
+        } else {
+            res.status(204).send({
+                dataInserted: false,
+            });
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 
 module.exports = {
     loginUser,
@@ -425,4 +474,5 @@ module.exports = {
     cardExists,
     transferFonds,
     depPayFonds,
+    newTransaction,
 }
