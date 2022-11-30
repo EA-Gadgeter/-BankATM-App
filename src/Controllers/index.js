@@ -155,7 +155,7 @@ const getUserData = async (req, res) => {
 const withdrawChange = async (req, res) => {
     try {
         const {body} = req;
-        const {restFonds, idAccount: idAccountReq} = body;
+        const {restFonds, idAccount: idAccountReq, cardType} = body;
 
         const findUserFonds = await prisma.Cuenta.findUnique({
             where: {
@@ -163,41 +163,82 @@ const withdrawChange = async (req, res) => {
             },
             select: {
                 fondos: true,
+                pago_mensual: true,
             },
         });
 
         if (findUserFonds) {
-            
-            if(restFonds <= findUserFonds.fondos) {
 
-                const newFonds = findUserFonds.fondos - Number(restFonds);
-                
-                const fondsUserUpdate = await prisma.Cuenta.update({
-                    where: {
-                        id_cuenta: idAccountReq,
-                    },
-                    data: {
-                        fondos: newFonds,
-                    },
-                });
+            if(cardType === "debito") {
+                if(restFonds <= findUserFonds.fondos) {
 
-                if (fondsUserUpdate) {
-                    res.send({
-                        withdrawSuccesful: true,
-                        validMoney: true,
-                    })
+                    const newFonds = findUserFonds.fondos - Number(restFonds);
+                    
+                    const fondsUserUpdate = await prisma.Cuenta.update({
+                        where: {
+                            id_cuenta: idAccountReq,
+                        },
+                        data: {
+                            fondos: newFonds,
+                        },
+                    });
+    
+                    if (fondsUserUpdate) {
+                        res.send({
+                            withdrawSuccesful: true,
+                            validMoney: true,
+                        })
+                    } else {
+                        res.send({
+                            withdrawSuccesful: false,
+                            validMoney: true,
+                        })
+                    }
                 } else {
                     res.send({
                         withdrawSuccesful: false,
-                        validMoney: true,
+                        validMoney: false,
                     })
                 }
             } else {
-                res.send({
-                    withdrawSuccesful: false,
-                    validMoney: false,
-                })
+
+                if(restFonds <= 5000) {
+
+                    const newMonth = findUserFonds.pago_mensual + Number(restFonds);
+
+                    const fondsUserUpdate = await prisma.Cuenta.update({
+                        where: {
+                            id_cuenta: idAccountReq,
+                        },
+                        data: {
+                            pago_mensual: newMonth,
+                        },
+                    });
+
+                    if (fondsUserUpdate) {
+                        res.send({
+                            withdrawSuccesful: true,
+                            validMoney: true,
+                            fromBank: true,
+                        });
+                    } else {
+                        res.send({
+                            withdrawSuccesful: false,
+                            validMoney: true,
+                            fromBank: true,
+                        });
+                    }
+                } else {
+                    res.send({
+                        withdrawSuccesful: false,
+                        validMoney: false,
+                        fromBank: true,
+                    });
+                }
+                
             }
+            
+            
         } else {
             // Data not founded
             res.status(204).send({
